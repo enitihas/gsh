@@ -65,6 +65,8 @@ class Shell:
 
     def dir(self,dir):
         abs_path = False
+        if dir == '':
+            dir = '.'
         if dir[0] == '/':
             abs_path = True
         if dir == '':
