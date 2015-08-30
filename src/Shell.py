@@ -90,6 +90,8 @@ class Shell:
         print(args)
 
     def pause(self,*args):
+        print('In pause mode, press enter to resume.',end='')
+        sys.stdout.flush()
         getpass.getpass(prompt='')
 
     def help(self,*args):
