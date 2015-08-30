@@ -108,6 +108,8 @@ class Shell:
         while True:
             user_input  = self.prompt_function(self.prompt)
             command = user_input.strip()
+            if command =='':
+                continue
             command = re.sub('\s+',' ',command)
             arg_list = command.split()
             if arg_list[0] in self.builtins:
