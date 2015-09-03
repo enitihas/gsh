@@ -1,24 +1,23 @@
-from pyparsing import Word, alphas, alphanums, printables, ZeroOrMore, \
-nums, Literal, Suppress, Group, QuotedString, removeQuotes, OneOrMore, \
-oneOf, Optional
+import pyparsing
 from sys import argv
 
 class parser:
 	def __init__(self):
-		self.varLiteral = Word(alphas, alphanums + '_').setResultsName("#literal:")
-		self.exprTokens = Word(printables, excludeChars="\n ;")
-		self.expr = Group(OneOrMore(self.exprTokens) + oneOf("\n ;"))
-		self.List = OneOrMore(self.expr).setResultsName("#ListOfExpressions")
-		self.semicolon = Literal(";")
-		self.newLine = Literal('\n')
+		self.varLiteral = pyparsing.Word(pyparsing.alphas, pyparsing.alphanums + '_').setResultsName("#literal:")
+		self.exprTokens = pyparsing.Word(pyparsing.printables, excludeChars="\n ;")
+		self.expr = pyparsing.Group(pyparsing.OneOrMore(self.exprTokens) + pyparsing.oneOf("\n ;"))
+		self.List = pyparsing.OneOrMore(self.expr).setResultsName("#ListOfExpressions")
+		self.semicolon = pyparsing.Literal(";")
+		self.newLine = pyparsing.Literal('\n')
 
+	# Takes stringArg and returns parsed dictionary
 	def variableDeclaration(self, stringArg):
 		# Grammar for basic atoms
-		quotString = Word(printables).setResultsName("#string:")
+		quotString = pyparsing.Word(pyparsing.printables).setResultsName("#string:")
 
 		# Grammar for other descriptor
 		assignment = quotString
-		equalTo = Suppress(Literal("="))
+		equalTo = pyparsing.Suppress(pyparsing.Literal("="))
 
 		# Assignment Expression
 		assignmentExpression = (self.varLiteral + equalTo + assignment).setResultsName("#Assignment_Expression:")
@@ -30,35 +29,48 @@ class parser:
 
 		return dictData
 
+	# Takes stringArg as argument and returns dictionary
 	def for_loop(self, stringArg):
 
 		# Grammar Defination
 		name = (self.varLiteral).setResultsName("#name:")
-		words = Group(OneOrMore(Word(printables, excludeChars=";"))).setResultsName("#list")
-		For = Literal("for")
-		In = Literal("in")
-		Do = Literal("do")
-		Done = Literal("done")
+		words = pyparsing.Group(pyparsing.OneOrMore(pyparsing.Word(pyparsing.printables, excludeChars=";"))).setResultsName("#list")
+		For = pyparsing.Literal("for")
+		In = pyparsing.Literal("in")
+		Do = pyparsing.Literal("do")
+		Done = pyparsing.Literal("done")
 
-		for_expr = (For + name + In + words + self.semicolon + Do + Optional(self.newLine) + self.List + Optional(self.newLine) + Done).setResultsName("#for_expression")
+		for_expr = (For + name + In + words + self.semicolon + Do + pyparsing.Optional(self.newLine) + self.List + pyparsing.Optional(self.newLine) + Done).setResultsName("#for_expression")
 
 		for_exprTokens = for_expr.parseString(stringArg)
 
 		dictData = for_exprTokens.asDict()
 
-		for x in dictData:
-			print x, dictData[x]
-
 		return dictData
 
+	# Don't read it is buggy
 	def if_cond(self, stringArg):
-		If = Literal("if")
-		Then = Literal("then")
-		Else = Literal("else")
-		Fi = Literal("fi")
 
-		if_expr = (If + self.List + self.semicolon + Then + self.List + self.semicolon + \
-			Else + self.List + self.semicolon + Fi).setResultsName("#if_expression")
+		# Grammar Definition
+		If = pyparsing.Literal("if")
+		Then = pyparsing.Literal("then")
+		Fi = pyparsing.Literal("fi")
+		Predicate = pyparsing.OneOrMore(self.expr).setResultsName("#predicate")
+		consqCommands = pyparsing.OneOrMore(self.expr).setResultsName("#consequent")
+
+		Elif = pyparsing.Literal("elif")
+		morePredicate = pyparsing.OneOrMore(self.expr).setResultsName("#morePredicate")
+		moreConsequent = pyparsing.OneOrMore(self.expr).setResultsName("#moreConsequent")
+		optElif = Elif + morePredicate + Then + pyparsing.Optional(self.newLine) + moreConsequent
+
+		Else = pyparsing.Literal("else")
+		altConsequent = pyparsing.OneOrMore(self.expr).setResultsName("#alternateConsequent")
+		optElse = Else + altConsequent + pyparsing.Optional(self.newLine)
+
+		if_expr = (If + Predicate + pyparsing.Optional(self.newLine) + Then + \
+			pyparsing.Optional(self.newLine) + consqCommands + \
+			pyparsing.Optional(optElif) + pyparsing.Optional(optElse) + \
+			pyparsing.Optional(self.newLine) + Fi).setResultsName("#if_expression")
 
 		if_exprTokens = if_expr.parseString(stringArg)
 
@@ -72,3 +84,7 @@ s = "asdsad_=3234"
 a.variableDeclaration(s)
 q = "for i in 232 324 45 4 7 ^; do\necho $i;\necho \"sd\";\ndone"
 a.for_loop(q)
+a.fn()
+l = "if [ $count -eq 100 ];\nthen\n  echo \"Count is 100\";\nfi"
+print l
+a.if_cond(l)
