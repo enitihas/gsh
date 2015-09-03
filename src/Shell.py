@@ -144,7 +144,13 @@ class Shell:
         if arg_list[0] in self.builtins:
             self.builtins[arg_list[0]](' '.join(arg_list[1:]))
         elif arg_list[0] in self.executable_list:
-            sb.call([self.executable_list[arg_list[0]]] + arg_list[1:])
+            with sb.Popen([self.executable_list[arg_list[0]]] + arg_list[1:]) as p:
+                try:
+                    return p.wait()
+                except:
+                    p.kill()
+                    p.wait()
+                    raise
         else:
             print('Invalid command:', arg_list[0])
 
