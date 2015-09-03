@@ -28,6 +28,8 @@ class Shell:
             'pause' : self.pause,
             'echo' : self.echo,
             'quit': self.quit,
+            'which': self.which,
+            'type' : self.which
         }
         self.executable_list = {}
         for dir in self.path:
@@ -44,6 +46,12 @@ class Shell:
     @staticmethod
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    def which(self, command):
+        if command in self.builtins:
+            print(command, 'is a shell builtin')
+        elif command in self.executable_list:
+            print(command, 'is', self.executable_list[command])
 
     def clr(self,*args):
         sys.stderr.write("\x1b[2J\x1b[H")
