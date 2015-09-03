@@ -49,18 +49,22 @@ class Shell:
         sys.stderr.write("\x1b[2J\x1b[H")
 
     def cd(self, dest):
-        if dest.strip()=='':
+        dest = dest.strip()
+        if dest == '':
             print('The current directory is:', self.cwd)
             return
-        try:
-            os.chdir(dest)
-        except FileNotFoundError:
+        if dest == '.':
+            dest = self.cwd
+        if dest[:2] == './':
+            dest = dest[2:]
+        if dest[0] not in ('~', '.', '/'):
+            dest = os.path.join(self.cwd, dest)
+        dest = os.path.expanduser(dest)
+        dest = os.path.abspath(dest)
+        if not os.path.isdir(dest):
             print('cd: no such file or directory:', dest)
             return
-        if dest[0] == '/':
-            self.cwd = dest
-        else:
-            self.cwd += '/' + dest
+        self.cwd = dest
         os.environ['PWD'] = self.cwd
 
     def dir(self,dir):
