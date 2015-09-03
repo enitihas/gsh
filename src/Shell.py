@@ -15,7 +15,8 @@ class Shell:
     Initially, the interface is primitive, but it is expected that more functionality will be added soon.
     """
 
-    def __init__(self):
+    def __init__(self, to_prompt=True):
+        self.to_prompt = to_prompt
         self.path = os.environ['PATH'].split(':')
         self.user = os.environ['LOGNAME']
         self.cwd = os.getcwd()
@@ -42,7 +43,10 @@ class Shell:
 
     @property
     def prompt(self):
-        return self.user + '->' + re.sub(os.environ['HOME'], '~', self.cwd) + ':$'
+        if self.to_prompt:
+            return self.user + '->' + re.sub(os.environ['HOME'], '~', self.cwd) + ':$'
+        else:
+            return ''
 
     @staticmethod
     def is_exe(fpath):
@@ -145,7 +149,17 @@ class Shell:
             print('Invalid command:', arg_list[0])
 
 if __name__ == '__main__':
-    sh = Shell()
-    readline.parse_and_bind("tab: complete")
-    readline.set_completer(sh.auto_complete)
-    sh.run()
+    if len(sys.argv) == 1:
+        sh = Shell()
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(sh.auto_complete)
+        sh.run()
+    else:
+        files = map(open, sys.argv[1:])
+        for file in files:
+            sys.stdin = file
+            sh = Shell(to_prompt=False)
+            try:
+                sh.run()
+            except EOFError:
+                file.close()
