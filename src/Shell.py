@@ -64,19 +64,20 @@ class Shell:
         if not os.path.isdir(dest):
             print('cd: no such file or directory:', dest)
             return
+        os.chdir(dest)
         self.cwd = dest
         os.environ['PWD'] = self.cwd
 
-    def dir(self,dir):
-        abs_path = False
-        if dir == '':
-            dir = '.'
-        if dir[0] == '/':
-            abs_path = True
-        if dir == '':
+    def dir(self, dir):
+        dir = dir.strip()
+        if dir in ('','.'):
             dir = self.cwd
-        if not abs_path:
-            dir = os.path.join(self.cwd,dir)
+        if dir[:2] == './':
+            dir = dir[2:]
+        if dir[0] not in ('~', '.', '/'):
+            dir = os.path.join(self.cwd, dir)
+        dir = os.path.expanduser(dir)
+        dir = os.path.abspath(dir)
         for item in os.listdir(dir):
             fullName = os.path.join(dir,item)
             if os.path.isdir(fullName):
