@@ -4,6 +4,7 @@ import subprocess as sb
 import getpass
 import re
 import shlex
+import readline
 # noinspection PyUnresolvedReferences
 from Colors import Colors
 __author__ = 'enitihas'
