@@ -38,6 +38,7 @@ class Shell:
                 full_name = os.path.join(dir,file)
                 if self.is_exe(full_name):
                     self.executable_list[file] = full_name
+        self.commands = list(self.executable_list) + list(self.builtins)
 
     @property
     def prompt(self):
@@ -52,6 +53,13 @@ class Shell:
             print(command, 'is a shell builtin')
         elif command in self.executable_list:
             print(command, 'is', self.executable_list[command])
+
+    def auto_complete(self,text,state):
+        options = [i for i in self.commands if i.startswith(text)]
+        if state < len(options):
+            return options[state]
+        else:
+            return None
 
     def clr(self,*args):
         sys.stderr.write("\x1b[2J\x1b[H")
@@ -138,4 +146,6 @@ class Shell:
 
 if __name__ == '__main__':
     sh = Shell()
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer(sh.auto_complete)
     sh.run()
