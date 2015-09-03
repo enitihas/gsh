@@ -40,8 +40,7 @@ class Shell:
 
     @property
     def prompt(self):
-        return self.user + '->' + re.sub(os.environ['HOME'],'~',self.cwd) + ':$'
-        # + os.getcwd().replace('/home/'+self.user, '~') + '$:'
+        return self.user + '->' + re.sub(os.environ['HOME'], '~', self.cwd) + ':$'
 
     @staticmethod
     def is_exe(fpath):
