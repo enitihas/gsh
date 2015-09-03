@@ -3,6 +3,7 @@ import sys
 import subprocess as sb
 import getpass
 import re
+import shlex
 # noinspection PyUnresolvedReferences
 from Colors import Colors
 __author__ = 'enitihas'
@@ -101,23 +102,26 @@ class Shell:
         Don't do that at all.'''
         print(help_text)
 
-    def quit(self,*args):
+    def quit(self, *args):
         sys.exit(0)
 
     def run(self):
         while True:
-            user_input  = self.prompt_function(self.prompt)
-            command = user_input.strip()
-            if command =='':
+            user_input  = self.prompt_function(self.prompt).strip()
+            if user_input == '':
                 continue
-            command = re.sub('\s+',' ',command)
-            arg_list = command.split()
-            if arg_list[0] in self.builtins:
-                self.builtins[arg_list[0]](''.join(arg_list[1:]))
-            elif arg_list[0] in self.executable_list:
-                sb.call([self.executable_list[arg_list[0]]] + arg_list[1:])
-            else:
-                print('Invalid command:',arg_list[0])
+            commands = user_input.split(';')
+            for command in commands:
+                arg_list = shlex.split(command)
+                self.run_command(arg_list)
+
+    def run_command(self, arg_list):
+        if arg_list[0] in self.builtins:
+            self.builtins[arg_list[0]](' '.join(arg_list[1:]))
+        elif arg_list[0] in self.executable_list:
+            sb.call([self.executable_list[arg_list[0]]] + arg_list[1:])
+        else:
+            print('Invalid command:', arg_list[0])
 
 if __name__ == '__main__':
     sh = Shell()
