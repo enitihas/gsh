@@ -63,7 +63,8 @@ class Shell:
             print(command, 'is', self.executable_list[command])
 
     def auto_complete(self,text,state):
-        options = [i for i in self.commands if i.startswith(text)]
+        options = [i for i in self.commands if i.startswith(text)] 
+        options += [j for j in os.listdir(self.cwd) if j.startswith(text)]
         if state < len(options):
             return options[state]
         else:
