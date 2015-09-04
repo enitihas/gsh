@@ -15,7 +15,7 @@ class Shell:
 
     def __init__(self):
         self.path = os.environ['PATH'].split(':')
-        self.user = os.environ['HOME'].split('/')[-1]#os.getlogin()
+        self.user = os.environ['LOGNAME']
         self.cwd = os.getcwd()
         self.prompt_function = input
         self.builtins = {
@@ -37,7 +37,7 @@ class Shell:
 
     @property
     def prompt(self):
-        return self.user + '->' + self.cwd + ':$'
+        return self.user + '->' + re.sub(os.environ['HOME'],'~',self.cwd) + ':$'
         # + os.getcwd().replace('/home/'+self.user, '~') + '$:'
 
     @staticmethod
@@ -56,7 +56,6 @@ class Shell:
         except FileNotFoundError:
             print('cd: no such file or directory:', dest)
             return
-        sub = re.sub(r'[~]',os.getenv('HOME'),dest)
         if dest[0] == '/':
             self.cwd = dest
         else:
@@ -109,6 +108,8 @@ class Shell:
         while True:
             user_input  = self.prompt_function(self.prompt)
             command = user_input.strip()
+            if command =='':
+                continue
             command = re.sub('\s+',' ',command)
             arg_list = command.split()
             if arg_list[0] in self.builtins:
