@@ -1,9 +1,9 @@
 ## "gsh" SHELL
 
-This is a "gsh" SHELL to host Systems Practicuum assignment number 2 by group number 9. The Shell supports major builtins of BASH
+This is a "gsh" SHELL to host Systems Practicuum assignment number 2 by group number 9. The Shell supports many major builtins of BASH
 
 ### Features:
-
+------
 1. "cd"
 ...Changes the current working directory.
 
@@ -34,4 +34,5 @@ This is a "gsh" SHELL to host Systems Practicuum assignment number 2 by group nu
 This Shell also supports creation of independent or background process relative to gsh. Autocomplete and Scrolling for commands is also enabled.
 
 ### How to run:
+------
 cd to src directory and run Shell.py. Yahoo!, gsh will start running.
