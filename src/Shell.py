@@ -6,6 +6,7 @@ import re
 import shlex
 import readline
 import multiprocessing
+import signal
 # noinspection PyUnresolvedReferences
 from Colors import Colors
 __author__ = 'enitihas'
@@ -17,6 +18,8 @@ class Shell:
     """
 
     def __init__(self, to_prompt=True):
+        signal.signal(signal.SIGINT, self.quit)
+        signal.signal(signal.SIGTERM, self.quit)
         self.to_prompt = to_prompt
         self.path = os.environ['PATH'].split(':')
         self.user = os.environ['LOGNAME']
@@ -129,6 +132,7 @@ class Shell:
         print(help_text)
 
     def quit(self, *args):
+        print('\nBye for now.')
         sys.exit(0)
 
     def run(self):
@@ -164,7 +168,10 @@ if __name__ == '__main__':
         sh = Shell()
         readline.parse_and_bind("tab: complete")
         readline.set_completer(sh.auto_complete)
-        sh.run()
+        try :
+            sh.run()
+        except EOFError:
+            sh.quit()
     else:
         files = map(open, sys.argv[1:])
         for file in files:
