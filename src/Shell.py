@@ -5,6 +5,7 @@ import getpass
 import re
 import shlex
 import readline
+import multiprocessing
 # noinspection PyUnresolvedReferences
 from Colors import Colors
 __author__ = 'enitihas'
@@ -138,7 +139,11 @@ class Shell:
             commands = user_input.split(';')
             for command in commands:
                 arg_list = shlex.split(command)
-                self.run_command(arg_list)
+                if arg_list[-1] == '&':
+                    new_process = multiprocessing.Process(target=self.run_command,args=(arg_list[:-1], ))
+                    new_process.start()
+                else:
+                    self.run_command(arg_list)
 
     def run_command(self, arg_list):
         if arg_list[0] in self.builtins:
